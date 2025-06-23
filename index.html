@@ -68,13 +68,12 @@
   </section>
 
   <script>
-    // Initialize EmailJS
     emailjs.init("7vp8QHEsXGvFKskZm");
 
     const surahSelect = document.getElementById('surahSelect');
     surahSelect.innerHTML = '<option value="">Loading Surahs...</option>';
 
-    fetch('https://api.quran.com/v4/chapters?language=en')
+    fetch('https://api.quran.com/api/v4/chapters?language=en')
       .then(res => res.json())
       .then(data => {
         surahSelect.innerHTML = '<option value="">Select a Surah</option>';
@@ -105,14 +104,13 @@
 
       loadingStatus.textContent = 'Loading Ayahs...';
 
-      fetch(`https://api.quran.com/v4/chapters/${surahId}?language=en`)
+      fetch(`https://api.quran.com/api/v4/chapters/${surahId}?language=en`)
         .then(res => res.json())
         .then(ch => {
           document.getElementById('selectedSurah').textContent = ch.chapter.name_simple;
         });
 
-      // ✅ Use by_chapter with recitation=7
-      fetch(`https://api.quran.com/v4/verses/by_chapter/${surahId}?language=en&fields=text_uthmani,audio&recitation=7`)
+      fetch(`https://api.quran.com/api/v4/verses/by_chapter/${surahId}?language=en&fields=text_uthmani,audio&recitation=7`)
         .then(res => res.json())
         .then(data => {
           const ayahsDiv = document.getElementById('ayahs');
