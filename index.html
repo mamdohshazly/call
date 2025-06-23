@@ -68,11 +68,13 @@
   </section>
 
   <script>
+    // Initialize EmailJS
     emailjs.init("7vp8QHEsXGvFKskZm");
 
     const surahSelect = document.getElementById('surahSelect');
     surahSelect.innerHTML = '<option value="">Loading Surahs...</option>';
 
+    // ✅ Load Surahs
     fetch('https://api.quran.com/api/v4/chapters?language=en')
       .then(res => res.json())
       .then(data => {
@@ -110,7 +112,8 @@
           document.getElementById('selectedSurah').textContent = ch.chapter.name_simple;
         });
 
-      fetch(`https://api.quran.com/api/v4/verses/by_chapter/${surahId}?language=en&fields=text_uthmani,audio&recitation=7`)
+      // ✅ Use recitation=1 (Mishari Rashid, guaranteed Ayah-by-Ayah)
+      fetch(`https://api.quran.com/api/v4/verses/by_chapter/${surahId}?language=en&fields=text_uthmani,audio&recitation=1`)
         .then(res => res.json())
         .then(data => {
           const ayahsDiv = document.getElementById('ayahs');
