@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shazly School - Learn Quran & Arabic</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      overflow-x: hidden;
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      background: #ffffffee;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 40px;
+      z-index: 10;
+    }
+
+    header img {
+      height: 80px;
+      width: auto;
+    }
+
+    nav a {
+      margin-left: 30px;
+      text-decoration: none;
+      color: #064635;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #0a7d38;
+    }
+
+    /* Hero */
+    .hero {
+      background: #cceeff url('homepage-photo.png') center center no-repeat;
+      background-size: contain; /* Show full image */
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-content {
+      position: relative;
+      color: #fff;
+      z-index: 1;
+      max-width: 90%;
+    }
+
+    .hero-content h1 {
+      font-size: 70px;
+      margin: 0;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.6);
+    }
+
+    .hero-content p {
+      font-size: 28px;
+      margin: 20px auto;
+      max-width: 800px;
+      line-height: 1.6;
+    }
+
+    .hero-content a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 15px 40px;
+      background: #0a7d38;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 20px;
+      transition: background 0.3s;
+    }
+
+    .hero-content a:hover {
+      background: #064635;
+    }
+
+    /* Sections */
+    section {
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    section h2 {
+      font-size: 40px;
+      margin-bottom: 20px;
+      color: #064635;
+    }
+
+    section p {
+      font-size: 22px;
+      max-width: 900px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    /* Footer */
+    footer {
+      background: #064635;
+      color: #fff;
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      header img {
+        height: 60px;
+      }
+
+      nav a {
+        margin: 10px 0 0 0;
+        display: block;
+      }
+
+      .hero-content h1 {
+        font-size: 40px;
+      }
+
+      .hero-content p {
+        font-size: 20px;
+      }
+
+      .hero-content a {
+        font-size: 18px;
+        padding: 12px 30px;
+      }
+
+      section h2 {
+        font-size: 30px;
+      }
+
+      section p {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header with Logo & Navigation -->
+  <header>
+    <img src="logo-shazly.jpeg" alt="School Logo">
+    <nav>
+      <a href="#quran">Quran</a>
+      <a href="#islamic">Islamic Studies</a>
+      <a href="#arabic">Arabic Language</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Welcome to Shazly School</h1>
+      <p>Learn Quran, Islamic Studies and Arabic easily with our expert teachers.
+        Perfect for non-Arabic speakers who want to read, understand, and love the words of Allah.
+        Join a caring community that makes learning joyful and meaningful!</p>
+      <a href="#contact">Enroll Now</a>
+    </div>
+  </section>
+
+  <!-- Quran Section -->
+  <section id="quran">
+    <h2>Learn the Holy Quran</h2>
+    <p>
+      Start your journey with the words of Allah. Learn how to read Quran correctly with proper Tajweed.
+      Understand meanings, memorize Surahs, and feel the beauty of recitation.
+      Our classes suit all levels — kids and adults.
+    </p>
+  </section>
+
+  <!-- Islamic Studies Section -->
+  <section id="islamic">
+    <h2>Islamic Studies</h2>
+    <p>
+      Deepen your faith with authentic knowledge. Our Islamic Studies lessons cover
+      Prophet stories (SAW), basic Fiqh, daily Duas, and how to live as a good Muslim.
+      Lessons are simple, practical, and inspiring!
+    </p>
+  </section>
+
+  <!-- Arabic Language Section -->
+  <section id="arabic">
+    <h2>Arabic Language</h2>
+    <p>
+      Learn to speak and understand Arabic step by step. Master reading, writing, speaking,
+      and listening through fun activities and real conversation practice.
+      Build confidence to understand Quran and talk with Arabic speakers.
+    </p>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" style="background: #0a7d38; color: #fff;">
+    <h2>Contact Us</h2>
+    <p>📍 Address: Your School Address Here</p>
+    <p>📞 Phone: +123-456-7890</p>
+    <p>📧 Email: info@shazlyschool.com</p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2024 Shazly School. All rights reserved.
+  </footer>
+
+</body>
+</html>
