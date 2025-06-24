@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>LEARN WITH SHAZLY - Floating Recorder & Orange Controls</title>
+  <title>LEARN WITH SHAZLY - Orange Controls & Side Recorder</title>
 
   <!-- Quranic font -->
   <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New&display=swap" rel="stylesheet">
@@ -186,7 +186,7 @@
 
   <header>
     <h1>LEARN WITH SHAZLY</h1>
-    <p>Floating Recorder at Side & Orange Inline Controls</p>
+    <p>Orange Inline Controls & Floating Side Recorder</p>
     <div class="mode-buttons">
       <button onclick="setMode('dark')">🌙 Dark Mode</button>
       <button onclick="setMode('light')">☀️ Light Mode</button>
@@ -329,7 +329,7 @@
     function positionRecorder(ayahDiv) {
       const rect = ayahDiv.getBoundingClientRect();
       const pageY = window.scrollY + rect.top + rect.height / 2 - recorderBar.offsetHeight / 2;
-      const pageX = window.scrollX + rect.right + 20; // move it to side right
+      const pageX = window.scrollX + rect.right + 30; // side offset
       recorderBar.style.top = `${pageY}px`;
       recorderBar.style.left = `${pageX}px`;
     }
