@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>LEARN WITH SHAZLY - Compact Controls & Flashing Recorder</title>
+  <title>LEARN WITH SHAZLY - Floating Recorder & Inline Controls</title>
 
   <!-- Quranic font -->
   <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New&display=swap" rel="stylesheet">
@@ -82,7 +82,7 @@
 
     .ayah span {
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       font-family: 'Scheherazade New', serif;
       font-size: 32px;
       line-height: 1.8;
@@ -90,9 +90,9 @@
 
     .controls {
       display: flex;
-      justify-content: flex-start;
       flex-wrap: wrap;
       gap: 8px;
+      flex-direction: row;
     }
 
     .controls button {
@@ -116,10 +116,7 @@
     }
 
     .recorder {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
+      position: absolute;
       background: #4CAF50;
       padding: 12px 20px;
       border-radius: 10px;
@@ -128,6 +125,7 @@
       align-items: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       z-index: 1000;
+      transition: top 0.3s ease, left 0.3s ease;
     }
 
     .recorder button {
@@ -186,7 +184,7 @@
 
   <header>
     <h1>LEARN WITH SHAZLY</h1>
-    <p>Compact Controls & Flashing Recording Indicator</p>
+    <p>Floating Recorder & Inline Ayah Controls</p>
     <div class="mode-buttons">
       <button onclick="setMode('dark')">🌙 Dark Mode</button>
       <button onclick="setMode('light')">☀️ Light Mode</button>
@@ -260,6 +258,8 @@
       return 0;
     }
 
+    const recorderBar = document.getElementById('recorderBar');
+
     loadAyahsBtn.onclick = () => {
       const surahId = parseInt(surahSelect.value);
       const from = parseInt(fromAyahInput.value);
@@ -295,6 +295,7 @@
         playBtn.onclick = () => {
           audioPlayer.src = audioUrl;
           audioPlayer.play();
+          positionRecorder(div);
         };
 
         const pauseBtn = document.createElement('button');
@@ -329,6 +330,12 @@
         ayahsDiv.appendChild(div);
       }
     };
+
+    function positionRecorder(ayahDiv) {
+      const rect = ayahDiv.getBoundingClientRect();
+      recorderBar.style.top = (window.scrollY + rect.top - recorderBar.offsetHeight - 10) + 'px';
+      recorderBar.style.left = (window.scrollX + rect.left + 20) + 'px';
+    }
 
     function setMode(mode) {
       document.body.classList.toggle('dark-mode', mode === 'dark');
