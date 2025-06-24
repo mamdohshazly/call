@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>LEARN WITH SHAZLY - Recording & Controls Enhanced</title>
+  <title>LEARN WITH SHAZLY - Recording with Timeline & Compact Controls</title>
 
   <!-- Quranic font -->
   <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New&display=swap" rel="stylesheet">
@@ -78,33 +78,25 @@
       margin: 20px 0;
       padding: 25px;
       border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      position: relative;
     }
 
     .ayah span {
-      flex: 1 1 70%;
-      margin-left: 30px;
+      display: block;
+      margin-bottom: 10px;
       font-family: 'Scheherazade New', serif;
       font-size: 32px;
-      line-height: 2;
-      white-space: normal;
-      overflow-wrap: break-word;
+      line-height: 1.8;
     }
 
     .controls {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 10px;
+      gap: 6px;
     }
 
     .controls button {
-      padding: 6px 12px;
-      font-size: 14px;
+      padding: 5px 10px;
+      font-size: 13px;
     }
 
     section {
@@ -115,15 +107,16 @@
     .recorder {
       position: fixed;
       bottom: 30px;
-      right: 30px;
+      left: 50%;
+      transform: translateX(-50%);
       background: #4CAF50;
-      padding: 10px 15px;
+      padding: 12px 20px;
       border-radius: 10px;
       display: flex;
       gap: 10px;
       align-items: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      transition: transform 0.4s ease;
+      z-index: 1000;
     }
 
     .recorder button {
@@ -140,6 +133,22 @@
       opacity: 0.9;
     }
 
+    .timeline {
+      height: 5px;
+      background: #ddd;
+      border-radius: 3px;
+      flex-grow: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress {
+      height: 100%;
+      background: red;
+      width: 0%;
+      transition: width 0.2s;
+    }
+
     #recordedAudio {
       margin-top: 20px;
       width: 100%;
@@ -154,7 +163,7 @@
 
   <header>
     <h1>LEARN WITH SHAZLY</h1>
-    <p>Accurate Version with Enhanced Recording & Controls</p>
+    <p>Recording with Timeline & Compact Ayah Controls</p>
     <div class="mode-buttons">
       <button onclick="setMode('dark')">🌙 Dark Mode</button>
       <button onclick="setMode('light')">☀️ Light Mode</button>
@@ -184,6 +193,9 @@
     <button id="startRec">🔴 Start</button>
     <button id="pauseRec" disabled>⏸️ Pause</button>
     <button id="stopRec" disabled>⏹️ Stop</button>
+    <div class="timeline">
+      <div class="progress" id="recProgress"></div>
+    </div>
   </div>
 
   <script>
@@ -256,35 +268,34 @@
         controls.className = 'controls';
 
         const playBtn = document.createElement('button');
-        playBtn.textContent = '▶️ Play';
+        playBtn.textContent = '▶️';
         playBtn.onclick = () => {
           audioPlayer.src = audioUrl;
           audioPlayer.play();
-          moveRecorderTo(div);
         };
 
         const pauseBtn = document.createElement('button');
-        pauseBtn.textContent = '⏸️ Pause';
+        pauseBtn.textContent = '⏸️';
         pauseBtn.onclick = () => {
           if(audioPlayer.paused) audioPlayer.play();
           else audioPlayer.pause();
         };
 
         const stopBtn = document.createElement('button');
-        stopBtn.textContent = '⏹️ Stop';
+        stopBtn.textContent = '⏹️';
         stopBtn.onclick = () => {
           audioPlayer.pause();
           audioPlayer.currentTime = 0;
         };
 
         const backBtn = document.createElement('button');
-        backBtn.textContent = '⏪ -5s';
+        backBtn.textContent = '-5s';
         backBtn.onclick = () => {
           audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - 5);
         };
 
         const fwdBtn = document.createElement('button');
-        fwdBtn.textContent = '⏩ +5s';
+        fwdBtn.textContent = '+5s';
         fwdBtn.onclick = () => {
           audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + 5);
         };
@@ -300,15 +311,13 @@
       document.body.classList.toggle('dark-mode', mode === 'dark');
     }
 
-    const recorderBar = document.getElementById('recorderBar');
     const startRec = document.getElementById('startRec');
     const pauseRec = document.getElementById('pauseRec');
     const stopRec = document.getElementById('stopRec');
+    const progress = document.getElementById('recProgress');
     const recordedAudio = document.getElementById('recordedAudio');
 
-    let mediaRecorder;
-    let recordedChunks = [];
-    let stream;
+    let mediaRecorder, recordedChunks = [], stream, timer, duration = 0;
 
     async function initRec() {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -317,6 +326,8 @@
       mediaRecorder.onstop = () => {
         const blob = new Blob(recordedChunks, { type: 'audio/webm' });
         recordedAudio.src = URL.createObjectURL(blob);
+        clearInterval(timer);
+        progress.style.width = '0%';
       };
     }
 
@@ -325,6 +336,11 @@
         recordedChunks = [];
         await initRec();
         mediaRecorder.start();
+        duration = 0;
+        timer = setInterval(() => {
+          duration++;
+          progress.style.width = Math.min(duration * 2, 100) + '%';
+        }, 1000);
       } else if (mediaRecorder.state === 'paused') {
         mediaRecorder.resume();
       }
@@ -336,8 +352,13 @@
     pauseRec.onclick = () => {
       if (mediaRecorder.state === 'recording') {
         mediaRecorder.pause();
+        clearInterval(timer);
       } else if (mediaRecorder.state === 'paused') {
         mediaRecorder.resume();
+        timer = setInterval(() => {
+          duration++;
+          progress.style.width = Math.min(duration * 2, 100) + '%';
+        }, 1000);
       }
     };
 
@@ -346,15 +367,6 @@
       startRec.disabled = false;
       pauseRec.disabled = true;
       stopRec.disabled = true;
-    };
-
-    function moveRecorderTo(div) {
-      const rect = div.getBoundingClientRect();
-      recorderBar.style.transform = `translateY(${rect.top + window.scrollY}px)`;
-    }
-
-    window.onscroll = () => {
-      if (audioPlayer.paused) recorderBar.style.transform = `translateY(0px)`;
     };
   </script>
 
