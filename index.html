@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>LEARN WITH SHAZLY - تصميم محسّن</title>
+  <title>LEARN WITH SHAZLY - وضع داكن وفاتح</title>
 
   <!-- الخط القرآني -->
   <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New&display=swap" rel="stylesheet">
@@ -11,16 +11,39 @@
     body {
       font-family: 'Amiri', serif;
       direction: rtl;
-      background: #f0f9f2;
+      background: var(--bg-color, #f0f9f2);
+      color: var(--text-color, #000);
       padding: 30px;
+      transition: background 0.3s, color 0.3s;
     }
+
     header {
       background: #4CAF50;
       color: white;
       padding: 30px;
       text-align: center;
       border-radius: 10px;
+      margin-bottom: 20px;
     }
+
+    .mode-buttons {
+      margin-top: 15px;
+    }
+
+    .mode-buttons button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .dark-mode {
+      --bg-color: #1a1a1a;
+      --text-color: #f0f0f0;
+    }
+
     select, input, button {
       margin: 10px 0;
       padding: 12px;
@@ -30,21 +53,23 @@
       border-radius: 5px;
       border: 1px solid #ccc;
     }
-    button {
+
+    button.action-btn {
       background: #4CAF50;
       color: white;
       cursor: pointer;
       border: none;
       transition: 0.3s;
     }
-    button:hover {
+
+    button.action-btn:hover {
       background: #45a049;
     }
 
     .ayah {
       background: #e6f4ea;
       margin: 20px 0;
-      padding: 25px;
+      padding: 20px;
       border-radius: 10px;
       display: flex;
       justify-content: space-between;
@@ -52,12 +77,18 @@
       flex-wrap: wrap;
     }
 
+    body.dark-mode .ayah {
+      background: #333;
+    }
+
     .ayah span {
       flex: 1;
-      margin-left: 30px;
+      margin-left: 20px;
       font-family: 'Scheherazade New', serif;
-      font-size: 40px;
-      line-height: 2.5;
+      font-size: 32px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .controls {
@@ -66,8 +97,8 @@
     }
 
     .controls button {
-      padding: 10px 20px;
-      font-size: 18px;
+      padding: 8px 16px;
+      font-size: 16px;
     }
 
     audio {
@@ -76,7 +107,7 @@
     }
 
     section {
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
     }
   </style>
@@ -85,7 +116,11 @@
 
   <header>
     <h1>LEARN WITH SHAZLY</h1>
-    <p>نسخة بتنسيق محسّن واحترافي</p>
+    <p>وضع داكن / فاتح + آيات في سطر واحد</p>
+    <div class="mode-buttons">
+      <button onclick="setMode('dark')">🌙 Dark Mode</button>
+      <button onclick="setMode('light')">☀️ Light Mode</button>
+    </div>
   </header>
 
   <section>
@@ -100,7 +135,7 @@
     <label>إلى الآية:</label>
     <input type="number" id="toAyah" min="1" placeholder="رقم الآية إلى">
 
-    <button id="loadAyahs">تحميل الآيات</button>
+    <button id="loadAyahs" class="action-btn">تحميل الآيات</button>
     <div id="ayahs"></div>
     <audio id="audioPlayer" controls></audio>
   </section>
@@ -226,6 +261,7 @@
       }
     };
 
+    // التنقل بين الحقول بـ Enter
     [surahSelect, fromAyahInput, toAyahInput, loadAyahsBtn].forEach((el, idx, arr) => {
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -235,6 +271,15 @@
         }
       });
     });
+
+    // زر التحويل بين الوضعين
+    function setMode(mode) {
+      if (mode === 'dark') {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    }
   </script>
 
 </body>
