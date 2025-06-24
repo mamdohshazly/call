@@ -2,7 +2,11 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>LEARN WITH SHAZLY - النسخة النهائية مع JSON</title>
+  <title>LEARN WITH SHAZLY - النسخة النهائية مع خط عثماني</title>
+
+  <!-- ✅ ربط الخط القرآني العثماني Scheherazade New من Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New&display=swap" rel="stylesheet">
+
   <style>
     body {
       font-family: 'Amiri', serif;
@@ -42,11 +46,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 24px;
     }
     .ayah span {
       flex: 1;
       margin-left: 20px;
+      font-family: 'Scheherazade New', serif;
+      font-size: 36px;
+      line-height: 2.2;
     }
     .ayah button {
       margin-left: 10px;
@@ -63,7 +69,7 @@
 
   <header>
     <h1>LEARN WITH SHAZLY</h1>
-    <p>النسخة النهائية - استخدام JSON</p>
+    <p>النسخة النهائية - خط قرآني عثماني</p>
   </header>
 
   <section>
@@ -84,7 +90,7 @@
   </section>
 
   <script>
-    // ✅ أسماء السور كاملة
+    // ✅ جميع أسماء السور بالعربية
     const surahNames = [
       "", "الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال",
       "التوبة", "يونس", "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء",
@@ -129,7 +135,7 @@
 
     let ayahTexts = {};
 
-    // تحميل النصوص من JSON
+    // ✅ تحميل النصوص من JSON
     fetch('ayahTexts.json')
       .then(res => res.json())
       .then(data => {
@@ -202,6 +208,7 @@
       }
     };
 
+    // ✅ تنقل بالحقل عبر Enter
     [surahSelect, fromAyahInput, toAyahInput, loadAyahsBtn].forEach((el, idx, arr) => {
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
