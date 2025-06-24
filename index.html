@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>LEARN WITH SHAZLY - Recording with Timeline & Compact Controls</title>
+  <title>LEARN WITH SHAZLY - Compact Controls & Flashing Recorder</title>
 
   <!-- Quranic font -->
   <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New&display=swap" rel="stylesheet">
@@ -90,13 +90,24 @@
 
     .controls {
       display: flex;
+      justify-content: flex-start;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 8px;
     }
 
     .controls button {
-      padding: 5px 10px;
-      font-size: 13px;
+      padding: 8px 12px;
+      font-size: 14px;
+      border: none;
+      background: #4CAF50;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .controls button:hover {
+      background: #45a049;
     }
 
     section {
@@ -133,6 +144,17 @@
       opacity: 0.9;
     }
 
+    .recording {
+      animation: blink 1s infinite;
+      background: red !important;
+    }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
     .timeline {
       height: 5px;
       background: #ddd;
@@ -152,6 +174,7 @@
     #recordedAudio {
       margin-top: 20px;
       width: 100%;
+      display: none;
     }
 
     audio#mainPlayer {
@@ -163,7 +186,7 @@
 
   <header>
     <h1>LEARN WITH SHAZLY</h1>
-    <p>Recording with Timeline & Compact Ayah Controls</p>
+    <p>Compact Controls & Flashing Recording Indicator</p>
     <div class="mode-buttons">
       <button onclick="setMode('dark')">🌙 Dark Mode</button>
       <button onclick="setMode('light')">☀️ Light Mode</button>
@@ -268,34 +291,34 @@
         controls.className = 'controls';
 
         const playBtn = document.createElement('button');
-        playBtn.textContent = '▶️';
+        playBtn.textContent = '▶️ Play';
         playBtn.onclick = () => {
           audioPlayer.src = audioUrl;
           audioPlayer.play();
         };
 
         const pauseBtn = document.createElement('button');
-        pauseBtn.textContent = '⏸️';
+        pauseBtn.textContent = '⏸️ Pause';
         pauseBtn.onclick = () => {
           if(audioPlayer.paused) audioPlayer.play();
           else audioPlayer.pause();
         };
 
         const stopBtn = document.createElement('button');
-        stopBtn.textContent = '⏹️';
+        stopBtn.textContent = '⏹️ Stop';
         stopBtn.onclick = () => {
           audioPlayer.pause();
           audioPlayer.currentTime = 0;
         };
 
         const backBtn = document.createElement('button');
-        backBtn.textContent = '-5s';
+        backBtn.textContent = '⏪ -5s';
         backBtn.onclick = () => {
           audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - 5);
         };
 
         const fwdBtn = document.createElement('button');
-        fwdBtn.textContent = '+5s';
+        fwdBtn.textContent = '⏩ +5s';
         fwdBtn.onclick = () => {
           audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + 5);
         };
@@ -326,8 +349,10 @@
       mediaRecorder.onstop = () => {
         const blob = new Blob(recordedChunks, { type: 'audio/webm' });
         recordedAudio.src = URL.createObjectURL(blob);
+        recordedAudio.style.display = 'block';
         clearInterval(timer);
         progress.style.width = '0%';
+        startRec.classList.remove('recording');
       };
     }
 
@@ -341,8 +366,14 @@
           duration++;
           progress.style.width = Math.min(duration * 2, 100) + '%';
         }, 1000);
+        startRec.classList.add('recording');
       } else if (mediaRecorder.state === 'paused') {
         mediaRecorder.resume();
+        startRec.classList.add('recording');
+        timer = setInterval(() => {
+          duration++;
+          progress.style.width = Math.min(duration * 2, 100) + '%';
+        }, 1000);
       }
       startRec.disabled = true;
       pauseRec.disabled = false;
@@ -353,8 +384,10 @@
       if (mediaRecorder.state === 'recording') {
         mediaRecorder.pause();
         clearInterval(timer);
+        startRec.classList.remove('recording');
       } else if (mediaRecorder.state === 'paused') {
         mediaRecorder.resume();
+        startRec.classList.add('recording');
         timer = setInterval(() => {
           duration++;
           progress.style.width = Math.min(duration * 2, 100) + '%';
