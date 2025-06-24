@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>LEARN WITH SHAZLY - Floating Recorder & Inline Controls</title>
+  <title>LEARN WITH SHAZLY - Floating Recorder & Orange Controls</title>
 
   <!-- Quranic font -->
   <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New&display=swap" rel="stylesheet">
@@ -12,6 +12,7 @@
       --bg-color: #f0f9f2;
       --text-color: #000;
       --ayah-bg: #e6f4ea;
+      --control-bg: linear-gradient(45deg, #f9a825, #ff9800);
     }
 
     body.dark-mode {
@@ -78,6 +79,7 @@
       margin: 20px 0;
       padding: 25px;
       border-radius: 10px;
+      position: relative;
     }
 
     .ayah span {
@@ -92,22 +94,22 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      flex-direction: row;
     }
 
     .controls button {
       padding: 8px 12px;
       font-size: 14px;
       border: none;
-      background: #4CAF50;
+      background: var(--control-bg);
       color: #fff;
       border-radius: 5px;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .controls button:hover {
-      background: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
 
     section {
@@ -184,7 +186,7 @@
 
   <header>
     <h1>LEARN WITH SHAZLY</h1>
-    <p>Floating Recorder & Inline Ayah Controls</p>
+    <p>Floating Recorder at Side & Orange Inline Controls</p>
     <div class="mode-buttons">
       <button onclick="setMode('dark')">🌙 Dark Mode</button>
       <button onclick="setMode('light')">☀️ Light Mode</button>
@@ -250,13 +252,6 @@
 
     let ayahTexts = {};
     fetch('ayahTexts.json').then(res => res.json()).then(data => ayahTexts = data);
-
-    function getPartIndex(globalID) {
-      for (let i = partStarts.length - 1; i >= 0; i--) {
-        if (globalID >= partStarts[i]) return i;
-      }
-      return 0;
-    }
 
     const recorderBar = document.getElementById('recorderBar');
 
@@ -333,8 +328,10 @@
 
     function positionRecorder(ayahDiv) {
       const rect = ayahDiv.getBoundingClientRect();
-      recorderBar.style.top = (window.scrollY + rect.top - recorderBar.offsetHeight - 10) + 'px';
-      recorderBar.style.left = (window.scrollX + rect.left + 20) + 'px';
+      const pageY = window.scrollY + rect.top + rect.height / 2 - recorderBar.offsetHeight / 2;
+      const pageX = window.scrollX + rect.right + 20; // move it to side right
+      recorderBar.style.top = `${pageY}px`;
+      recorderBar.style.left = `${pageX}px`;
     }
 
     function setMode(mode) {
