@@ -142,6 +142,8 @@
   </div>
 
   <script>
+    emailjs.init("UPiVfipXxhGdU_CQA06Sh");
+
     document.addEventListener("DOMContentLoaded", () => {
       const dateInput = document.getElementById("currentDate");
       const timeInput = document.getElementById("currentTime");
@@ -151,41 +153,56 @@
 
       const startButton = document.getElementById("startButton");
       startButton.addEventListener("click", () => {
-        const formSection = document.getElementById("studentFormSection");
-        const ayahSection = document.getElementById("ayahSection");
-
-        formSection.classList.remove("show");
-        setTimeout(() => {
-          formSection.style.display = "none";
-          ayahSection.style.display = "block";
-          requestAnimationFrame(() => {
-            ayahSection.classList.add("show");
-            document.getElementById("recorderBar").style.display = "flex";
-          });
-        }, 500);
+        document.getElementById("studentFormSection").style.display = "none";
+        document.getElementById("ayahSection").style.display = "block";
+        document.getElementById("recorderBar").style.display = "flex";
       });
 
+      let mediaRecorder;
+      let chunks = [];
+
+      const startRec = document.getElementById("startRec");
       const stopRec = document.getElementById("stopRec");
-      const confirmDialog = document.getElementById("confirmDialog");
-      const confirmYes = document.getElementById("confirmYes");
-      const confirmNo = document.getElementById("confirmNo");
+      const pauseRec = document.getElementById("pauseRec");
+      const recordedAudio = document.getElementById("recordedAudio");
 
-      stopRec.addEventListener("click", (e) => {
-        e.preventDefault();
-        confirmDialog.style.display = "block";
+      startRec.addEventListener("click", async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.start();
+        chunks = [];
+
+        startRec.disabled = true;
+        pauseRec.disabled = false;
+        stopRec.disabled = false;
+
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: 'audio/webm' });
+          recordedAudio.src = URL.createObjectURL(blob);
+          recordedAudio.load();
+        };
       });
 
-      confirmYes.addEventListener("click", () => {
-        confirmDialog.style.display = "none";
+      stopRec.addEventListener("click", () => {
+        mediaRecorder.stop();
+        startRec.disabled = false;
+        pauseRec.disabled = true;
+        stopRec.disabled = true;
+        document.getElementById("confirmDialog").style.display = "block";
+      });
+
+      document.getElementById("confirmYes").addEventListener("click", () => {
+        document.getElementById("confirmDialog").style.display = "none";
         document.getElementById("thanksMessage").style.display = "block";
       });
 
-      confirmNo.addEventListener("click", () => {
-        confirmDialog.style.display = "none";
+      document.getElementById("confirmNo").addEventListener("click", () => {
+        document.getElementById("confirmDialog").style.display = "none";
       });
 
       const submitBtn = document.getElementById("submitBtn");
-      const recordedAudio = document.getElementById("recordedAudio");
       const successMessage = document.getElementById("successMessage");
 
       submitBtn.addEventListener("click", async () => {
@@ -198,43 +215,37 @@
         const response = await fetch(blobUrl);
         const blob = await response.blob();
 
-        // بيانات Cloudinary
+        // رفع إلى Cloudinary
         const cloudName = "dhg7lvnrt";
         const uploadPreset = "6841f214-40b7-4bdd-93d2-1d1b061e8bd2";
 
-        // إعداد البيانات لإرسالها إلى Cloudinary
         const formData = new FormData();
         formData.append("file", blob);
         formData.append("upload_preset", uploadPreset);
 
-        // رفع الملف إلى Cloudinary
-        const cloudinaryResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+        const cloudinaryRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
           method: "POST",
           body: formData
         });
 
-        const cloudinaryData = await cloudinaryResponse.json();
+        const cloudinaryData = await cloudinaryRes.json();
         const recordingLink = cloudinaryData.secure_url;
 
-        emailjs.send("service_vlapjef", "template_jhbppzj", {
+        // إرسال البريد
+        await emailjs.send("service_vlapjef", "template_jhbppzj", {
           to_name: document.getElementById("studentName").value,
           from_email: document.getElementById("studentEmail").value,
           date: document.getElementById("currentDate").value,
           time: document.getElementById("currentTime").value,
-          message: "Student recording link: " + recordingLink
-        }, "UPiVfipXxhGdU_CQA06Sh")
-        .then(() => {
-          successMessage.style.display = "block";
-          setTimeout(() => {
-            successMessage.style.display = "none";
-          }, 4000);
-        })
-        .catch(err => {
-          alert("❌ Failed to send: " + err.message);
+          message: "رابط تسجيل الطالب: " + recordingLink
         });
+
+        successMessage.style.display = "block";
+        setTimeout(() => {
+          successMessage.style.display = "none";
+        }, 5000);
       });
     });
   </script>
-  <script src="script.js"></script>
 </body>
 </html>
