@@ -7,24 +7,6 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyApOu3fiTOi0PWte01-zcUiQ4yY_vEWJ0c",
-      authDomain: "recording-dc13f.firebaseapp.com",
-      projectId: "recording-dc13f",
-      storageBucket: "recording-dc13f.appspot.com",
-      messagingSenderId: "182527620732",
-      appId: "1:182527620732:web:9c4cf1177f1e711cd4bbf9",
-      measurementId: "G-ZG3EGSRMNR"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const storage = firebase.storage();
-  </script>
-
   <style>
     .fade {
       opacity: 0;
@@ -216,10 +198,23 @@
         const response = await fetch(blobUrl);
         const blob = await response.blob();
 
-        const storageRef = storage.ref();
-        const fileRef = storageRef.child("recordings/" + Date.now() + ".webm");
-        await fileRef.put(blob);
-        const recordingLink = await fileRef.getDownloadURL();
+        // بيانات Cloudinary
+        const cloudName = "dhg7lvnrt";
+        const uploadPreset = "6841f214-40b7-4bdd-93d2-1d1b061e8bd2";
+
+        // إعداد البيانات لإرسالها إلى Cloudinary
+        const formData = new FormData();
+        formData.append("file", blob);
+        formData.append("upload_preset", uploadPreset);
+
+        // رفع الملف إلى Cloudinary
+        const cloudinaryResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
+          method: "POST",
+          body: formData
+        });
+
+        const cloudinaryData = await cloudinaryResponse.json();
+        const recordingLink = cloudinaryData.secure_url;
 
         emailjs.send("service_vlapjef", "template_jhbppzj", {
           to_name: document.getElementById("studentName").value,
