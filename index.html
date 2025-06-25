@@ -7,6 +7,24 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyApOu3fiTOi0PWte01-zcUiQ4yY_vEWJ0c",
+      authDomain: "recording-dc13f.firebaseapp.com",
+      projectId: "recording-dc13f",
+      storageBucket: "recording-dc13f.appspot.com",
+      messagingSenderId: "182527620732",
+      appId: "1:182527620732:web:9c4cf1177f1e711cd4bbf9",
+      measurementId: "G-ZG3EGSRMNR"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const storage = firebase.storage();
+  </script>
+
   <style>
     .fade {
       opacity: 0;
@@ -84,7 +102,7 @@
   </section>
 
   <!-- Ayah Section -->
-  <section id="ayahSection" class="fade show" style="display:none;">
+  <section id="ayahSection" class="fade" style="display:none;">
     <header>
       <h1>LEARN WITH SHAZLY</h1>
       <p>Floating Recorder & Inline Ayah Controls</p>
@@ -142,8 +160,6 @@
   </div>
 
   <script>
-    emailjs.init("UPiVfipXxhGdU_CQA06Sh");
-
     document.addEventListener("DOMContentLoaded", () => {
       const dateInput = document.getElementById("currentDate");
       const timeInput = document.getElementById("currentTime");
@@ -153,56 +169,41 @@
 
       const startButton = document.getElementById("startButton");
       startButton.addEventListener("click", () => {
-        document.getElementById("studentFormSection").style.display = "none";
-        document.getElementById("ayahSection").style.display = "block";
-        document.getElementById("recorderBar").style.display = "flex";
+        const formSection = document.getElementById("studentFormSection");
+        const ayahSection = document.getElementById("ayahSection");
+
+        formSection.classList.remove("show");
+        setTimeout(() => {
+          formSection.style.display = "none";
+          ayahSection.style.display = "block";
+          requestAnimationFrame(() => {
+            ayahSection.classList.add("show");
+            document.getElementById("recorderBar").style.display = "flex";
+          });
+        }, 500);
       });
 
-      let mediaRecorder;
-      let chunks = [];
-
-      const startRec = document.getElementById("startRec");
       const stopRec = document.getElementById("stopRec");
-      const pauseRec = document.getElementById("pauseRec");
-      const recordedAudio = document.getElementById("recordedAudio");
+      const confirmDialog = document.getElementById("confirmDialog");
+      const confirmYes = document.getElementById("confirmYes");
+      const confirmNo = document.getElementById("confirmNo");
 
-      startRec.addEventListener("click", async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.start();
-        chunks = [];
-
-        startRec.disabled = true;
-        pauseRec.disabled = false;
-        stopRec.disabled = false;
-
-        mediaRecorder.ondataavailable = e => chunks.push(e.data);
-
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(chunks, { type: 'audio/webm' });
-          recordedAudio.src = URL.createObjectURL(blob);
-          recordedAudio.load();
-        };
+      stopRec.addEventListener("click", (e) => {
+        e.preventDefault();
+        confirmDialog.style.display = "block";
       });
 
-      stopRec.addEventListener("click", () => {
-        mediaRecorder.stop();
-        startRec.disabled = false;
-        pauseRec.disabled = true;
-        stopRec.disabled = true;
-        document.getElementById("confirmDialog").style.display = "block";
-      });
-
-      document.getElementById("confirmYes").addEventListener("click", () => {
-        document.getElementById("confirmDialog").style.display = "none";
+      confirmYes.addEventListener("click", () => {
+        confirmDialog.style.display = "none";
         document.getElementById("thanksMessage").style.display = "block";
       });
 
-      document.getElementById("confirmNo").addEventListener("click", () => {
-        document.getElementById("confirmDialog").style.display = "none";
+      confirmNo.addEventListener("click", () => {
+        confirmDialog.style.display = "none";
       });
 
       const submitBtn = document.getElementById("submitBtn");
+      const recordedAudio = document.getElementById("recordedAudio");
       const successMessage = document.getElementById("successMessage");
 
       submitBtn.addEventListener("click", async () => {
@@ -215,37 +216,30 @@
         const response = await fetch(blobUrl);
         const blob = await response.blob();
 
-        // رفع إلى Cloudinary
-        const cloudName = "dhg7lvnrt";
-        const uploadPreset = "6841f214-40b7-4bdd-93d2-1d1b061e8bd2";
+        const storageRef = storage.ref();
+        const fileRef = storageRef.child("recordings/" + Date.now() + ".webm");
+        await fileRef.put(blob);
+        const recordingLink = await fileRef.getDownloadURL();
 
-        const formData = new FormData();
-        formData.append("file", blob);
-        formData.append("upload_preset", uploadPreset);
-
-        const cloudinaryRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, {
-          method: "POST",
-          body: formData
-        });
-
-        const cloudinaryData = await cloudinaryRes.json();
-        const recordingLink = cloudinaryData.secure_url;
-
-        // إرسال البريد
-        await emailjs.send("service_vlapjef", "template_jhbppzj", {
+        emailjs.send("service_vlapjef", "template_jhbppzj", {
           to_name: document.getElementById("studentName").value,
           from_email: document.getElementById("studentEmail").value,
           date: document.getElementById("currentDate").value,
           time: document.getElementById("currentTime").value,
-          message: "رابط تسجيل الطالب: " + recordingLink
+          message: "Student recording link: " + recordingLink
+        }, "UPiVfipXxhGdU_CQA06Sh")
+        .then(() => {
+          successMessage.style.display = "block";
+          setTimeout(() => {
+            successMessage.style.display = "none";
+          }, 4000);
+        })
+        .catch(err => {
+          alert("❌ Failed to send: " + err.message);
         });
-
-        successMessage.style.display = "block";
-        setTimeout(() => {
-          successMessage.style.display = "none";
-        }, 5000);
       });
     });
   </script>
+  <script src="script.js"></script>
 </body>
 </html>
