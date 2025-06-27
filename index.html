@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <title>LEARN WITH SHAZLY - Student Recorder</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo&family=Scheherazade+New&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
-
   <style>
     body { font-family: 'Cairo', sans-serif; padding: 20px; }
     .fade { opacity: 0; transition: opacity 0.5s ease-in-out; }
@@ -29,8 +29,6 @@
   </style>
 </head>
 <body>
-
-  <!-- Student Info Form -->
   <section id="studentFormSection" class="fade show">
     <h2>Student Information</h2>
     <form id="studentForm">
@@ -38,33 +36,52 @@
         <label for="studentName">Name:</label>
         <input type="text" id="studentName" required>
       </div>
-
       <div class="form-group">
         <label for="studentEmail">Email:</label>
         <input type="email" id="studentEmail" required>
       </div>
-
       <div class="form-group">
         <label for="currentDate">Date:</label>
         <input type="text" id="currentDate" readonly>
       </div>
-
       <div class="form-group">
         <label for="currentTime">Time:</label>
         <input type="text" id="currentTime" readonly>
       </div>
-
-      <button type="button" id="startButton" class="action-btn">Start Recording</button>
+      <button type="button" id="startButton" class="action-btn">Start Your Developing</button>
     </form>
   </section>
 
-  <!-- Recording Section -->
   <section id="ayahSection" class="fade" style="display:none;">
-    <h2>Recording</h2>
+    <header>
+      <h1>LEARN WITH SHAZLY</h1>
+      <p>Floating Recorder & Inline Ayah Controls</p>
+      <div class="mode-buttons">
+        <button onclick="setMode('dark')">🌙 Dark Mode</button>
+        <button onclick="setMode('light')">☀️ Light Mode</button>
+      </div>
+    </header>
+
+    <h2>Select Surah and Ayah Range</h2>
+    <select id="surahSelect">
+      <option value="">Select Surah</option>
+    </select><br/>
+
+    <label for="fromAyah">From Ayah:</label>
+    <input type="number" id="fromAyah" min="1" placeholder="Ayah number from">
+
+    <label for="toAyah">To Ayah:</label>
+    <input type="number" id="toAyah" min="1" placeholder="Ayah number to">
+
+    <button id="loadAyahs" class="action-btn">🎧 Load Ayahs</button>
+    <div id="ayahs"></div>
+
+    <audio id="mainPlayer" controls></audio>
     <audio id="recordedAudio" controls style="display:none;"></audio>
 
     <div class="recorder" id="recorderBar">
       <button id="startRec">🔴 Start</button>
+      <button id="pauseRec" disabled>⏸️ Pause</button>
       <button id="stopRec" disabled>⏹️ Stop</button>
     </div>
 
@@ -74,37 +91,40 @@
     </div>
   </section>
 
-  <!-- Success Message -->
   <div id="successMessage">
     ✅ تم الإرسال بنجاح! تحقق من بريدك الإلكتروني.
     <button onclick="this.parentElement.style.display='none'" style="margin-left:10px;">✖</button>
   </div>
 
   <script>
-    emailjs.init("74-zUyeR-o7zE76GL"); // ✅ public key
+    emailjs.init("74-zUyeR-o7zE76GL");
 
     document.addEventListener("DOMContentLoaded", () => {
-      // إعداد التاريخ والوقت
       document.getElementById("currentDate").value = new Date().toLocaleDateString();
       document.getElementById("currentTime").value = new Date().toLocaleTimeString();
 
+      const startButton = document.getElementById("startButton");
+      const recorderBar = document.getElementById("recorderBar");
       const formSection = document.getElementById("studentFormSection");
       const ayahSection = document.getElementById("ayahSection");
-      const recorderBar = document.getElementById("recorderBar");
       const recordedAudio = document.getElementById("recordedAudio");
       const thanksMessage = document.getElementById("thanksMessage");
       const successMessage = document.getElementById("successMessage");
 
       let mediaRecorder, recordedChunks = [];
 
-      // الانتقال من الفورم إلى التسجيل
-      document.getElementById("startButton").onclick = () => {
-        formSection.style.display = "none";
-        ayahSection.style.display = "block";
-        recorderBar.style.display = "flex";
-      };
+      startButton.addEventListener("click", () => {
+        formSection.classList.remove("show");
+        setTimeout(() => {
+          formSection.style.display = "none";
+          ayahSection.style.display = "block";
+          requestAnimationFrame(() => {
+            ayahSection.classList.add("show");
+            recorderBar.style.display = "flex";
+          });
+        }, 500);
+      });
 
-      // بدء التسجيل
       document.getElementById("startRec").onclick = async () => {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         recordedChunks = [];
@@ -115,11 +135,9 @@
         document.getElementById("stopRec").disabled = false;
       };
 
-      // إيقاف التسجيل
       document.getElementById("stopRec").onclick = () => {
         mediaRecorder.stop();
         document.getElementById("stopRec").disabled = true;
-
         mediaRecorder.onstop = () => {
           const blob = new Blob(recordedChunks, { type: "audio/webm" });
           const url = URL.createObjectURL(blob);
@@ -130,7 +148,6 @@
         };
       };
 
-      // عند الضغط على SUBMIT
       document.getElementById("submitBtn").onclick = async () => {
         const blob = window.recordedBlob;
         const studentName = document.getElementById("studentName").value;
