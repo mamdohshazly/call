@@ -1,96 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Audio Recorder + EmailJS</title>
+  <meta charset="UTF-8" />
+  <title>LEARN WITH SHAZLY - Student Recorder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&family=Scheherazade+New&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyApOu3fiTOi0PWte01-zcUiQ4yY_vEWJ0c",
+      authDomain: "recording-dc13f.firebaseapp.com",
+      projectId: "recording-dc13f",
+      storageBucket: "recording-dc13f.appspot.com",
+      messagingSenderId: "182527620732",
+      appId: "1:182527620732:web:9c4cf1177f1e711cd4bbf9",
+      measurementId: "G-ZG3EGSRMNR"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const storage = firebase.storage();
+  </script>
+
   <style>
-    body { font-family: Arial; padding: 20px; }
-    .btn { padding: 10px 15px; margin: 10px 0; }
+    .fade {
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .fade.show {
+      opacity: 1;
+    }
+
+    #confirmDialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      border: 2px solid #4CAF50;
+      border-radius: 10px;
+      z-index: 2000;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    #confirmDialog button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #successMessage {
+      display: none;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 3000;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
+  <!-- Student Info Form -->
+  <section id="studentFormSection" class="fade show">
+    <h2>Student Information</h2>
+    <form id="studentForm">
+      <div class="form-group">
+        <label for="studentName">Name:</label>
+        <input type="text" id="studentName" name="studentName" required>
+      </div>
 
-  <h2>📚 تسجيل الطالب وإرساله</h2>
+      <div class="form-group">
+        <label for="studentEmail">Email:</label>
+        <input type="email" id="studentEmail" name="studentEmail" required>
+      </div>
 
-  <label>👤 الاسم:</label>
-  <input type="text" id="studentName"><br><br>
+      <div class="form-group">
+        <label for="currentDate">Date:</label>
+        <input type="text" id="currentDate" name="currentDate" readonly>
+      </div>
 
-  <label>📧 البريد الإلكتروني:</label>
-  <input type="email" id="studentEmail"><br><br>
+      <div class="form-group">
+        <label for="currentTime">Time:</label>
+        <input type="text" id="currentTime" name="currentTime" readonly>
+      </div>
 
-  <button class="btn" id="startRec">🔴 بدء التسجيل</button>
-  <button class="btn" id="stopRec" disabled>⏹️ إيقاف التسجيل</button>
-  <button class="btn" id="sendBtn" style="display:none;">✉️ إرسال التسجيل</button><br>
+      <button type="button" id="startButton" class="action-btn">Start Your Developing</button>
+    </form>
+  </section>
 
-  <audio id="recordedAudio" controls style="display:none;"></audio>
+  <!-- Ayah Section -->
+  <section id="ayahSection" class="fade" style="display:none;">
+    <header>
+      <h1>LEARN WITH SHAZLY</h1>
+      <p>Floating Recorder & Inline Ayah Controls</p>
+      <div class="mode-buttons">
+        <button onclick="setMode('dark')">🌙 Dark Mode</button>
+        <button onclick="setMode('light')">☀️ Light Mode</button>
+      </div>
+    </header>
+
+    <h2>Select Surah and Ayah Range</h2>
+    <select id="surahSelect">
+      <option value="">Select Surah</option>
+    </select><br/>
+
+    <label for="fromAyah">From Ayah:</label>
+    <input type="number" id="fromAyah" min="1" placeholder="Ayah number from">
+
+    <label for="toAyah">To Ayah:</label>
+    <input type="number" id="toAyah" min="1" placeholder="Ayah number to">
+
+    <button id="loadAyahs" class="action-btn">🎧 Load Ayahs</button>
+    <div id="ayahs"></div>
+
+    <audio id="mainPlayer" controls></audio>
+    <audio id="recordedAudio" controls></audio>
+
+    <!-- Recorder Bar -->
+    <div class="recorder" id="recorderBar">
+      <button id="startRec">🔴 Start</button>
+      <button id="pauseRec" disabled>⏸️ Pause</button>
+      <button id="stopRec" disabled>⏹️ Stop</button>
+      <div class="timeline">
+        <div class="progress" id="recProgress"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Confirmation Dialog -->
+  <div id="confirmDialog">
+    <p>Do you want to submit?</p>
+    <button id="confirmYes">Yes</button>
+    <button id="confirmNo">No</button>
+  </div>
+
+  <!-- Submission Message -->
+  <div id="thanksMessage" style="display:none; text-align:center; margin-top:30px;">
+    <h2>JAZAKUM ALLAH KHAIRAN</h2>
+    <button id="submitBtn" class="action-btn">SUBMIT</button>
+  </div>
+
+  <!-- Success Message -->
+  <div id="successMessage">
+    ✅ تم الإرسال بنجاح! تحقق من بريدك الإلكتروني.
+    <button onclick="this.parentElement.style.display='none'" style="margin-left:10px;">✖</button>
+  </div>
 
   <script>
-    emailjs.init("74-zUyeR-o7zE76GL"); // public key
+    document.addEventListener("DOMContentLoaded", () => {
+      const dateInput = document.getElementById("currentDate");
+      const timeInput = document.getElementById("currentTime");
+      const now = new Date();
+      dateInput.value = now.toLocaleDateString();
+      timeInput.value = now.toLocaleTimeString();
 
-    let mediaRecorder;
-    let recordedChunks = [];
-    let recordedBlob = null;
+      const startButton = document.getElementById("startButton");
+      startButton.addEventListener("click", () => {
+        const formSection = document.getElementById("studentFormSection");
+        const ayahSection = document.getElementById("ayahSection");
 
-    const startBtn = document.getElementById("startRec");
-    const stopBtn = document.getElementById("stopRec");
-    const sendBtn = document.getElementById("sendBtn");
-    const audioElement = document.getElementById("recordedAudio");
-
-    startBtn.onclick = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      recordedChunks = [];
-      mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
-      mediaRecorder.start();
-      startBtn.disabled = true;
-      stopBtn.disabled = false;
-    };
-
-    stopBtn.onclick = () => {
-      mediaRecorder.stop();
-      stopBtn.disabled = true;
-      sendBtn.style.display = "inline";
-      mediaRecorder.onstop = () => {
-        recordedBlob = new Blob(recordedChunks, { type: "audio/webm" });
-        const url = URL.createObjectURL(recordedBlob);
-        audioElement.src = url;
-        audioElement.style.display = "block";
-      };
-    };
-
-    sendBtn.onclick = async () => {
-      const name = document.getElementById("studentName").value;
-      const email = document.getElementById("studentEmail").value;
-
-      if (!name || !email || !recordedBlob) {
-        alert("⚠️ الرجاء تعبئة الاسم والبريد وتسجيل الصوت أولاً.");
-        return;
-      }
-
-      const base64 = await blobToBase64(recordedBlob);
-
-      emailjs.send("service_vlapjef", "template_p0wtlnj", {
-        from_name: name,
-        from_email: email,
-        base64_audio: base64
-      }).then(() => {
-        alert("✅ تم إرسال التسجيل بنجاح!");
-        sendBtn.style.display = "none";
-      }).catch(err => {
-        alert("❌ فشل في الإرسال: " + err.text);
+        formSection.classList.remove("show");
+        setTimeout(() => {
+          formSection.style.display = "none";
+          ayahSection.style.display = "block";
+          requestAnimationFrame(() => {
+            ayahSection.classList.add("show");
+            document.getElementById("recorderBar").style.display = "flex";
+          });
+        }, 500);
       });
-    };
 
-    function blobToBase64(blob) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result.split(',')[1]); // remove header
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
+      const stopRec = document.getElementById("stopRec");
+      const confirmDialog = document.getElementById("confirmDialog");
+      const confirmYes = document.getElementById("confirmYes");
+      const confirmNo = document.getElementById("confirmNo");
+
+      stopRec.addEventListener("click", (e) => {
+        e.preventDefault();
+        confirmDialog.style.display = "block";
       });
-    }
+
+      confirmYes.addEventListener("click", () => {
+        confirmDialog.style.display = "none";
+        document.getElementById("thanksMessage").style.display = "block";
+      });
+
+      confirmNo.addEventListener("click", () => {
+        confirmDialog.style.display = "none";
+      });
+
+      const submitBtn = document.getElementById("submitBtn");
+      const recordedAudio = document.getElementById("recordedAudio");
+      const successMessage = document.getElementById("successMessage");
+
+      submitBtn.addEventListener("click", async () => {
+        const blobUrl = recordedAudio.src;
+        if (!blobUrl) {
+          alert("لا يوجد تسجيل لإرساله!");
+          return;
+        }
+
+        const response = await fetch(blobUrl);
+        const blob = await response.blob();
+
+        const storageRef = storage.ref();
+        const fileRef = storageRef.child("recordings/" + Date.now() + ".webm");
+        await fileRef.put(blob);
+        const recordingLink = await fileRef.getDownloadURL();
+
+        emailjs.send("service_vlapjef", "template_jhbppzj", {
+          to_name: document.getElementById("studentName").value,
+          from_email: document.getElementById("studentEmail").value,
+          date: document.getElementById("currentDate").value,
+          time: document.getElementById("currentTime").value,
+          message: "Student recording link: " + recordingLink
+        }, "UPiVfipXxhGdU_CQA06Sh")
+        .then(() => {
+          successMessage.style.display = "block";
+          setTimeout(() => {
+            successMessage.style.display = "none";
+          }, 4000);
+        })
+        .catch(err => {
+          alert("❌ Failed to send: " + err.message);
+        });
+      });
+    });
   </script>
-
+  <script src="script.js"></script>
 </body>
 </html>
