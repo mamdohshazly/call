@@ -3,28 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <title>LEARN WITH SHAZLY - Student Recorder</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo&family=Scheherazade+New&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
   <style>
     body { font-family: 'Cairo', sans-serif; padding: 20px; }
+    label { font-weight: bold; display: block; margin-top: 10px; }
+    input, button, select { padding: 8px; margin-top: 5px; width: 100%; max-width: 400px; }
+    button { cursor: pointer; }
     .fade { opacity: 0; transition: opacity 0.5s ease-in-out; }
     .fade.show { opacity: 1; }
-    .form-group { margin-bottom: 15px; }
-    .action-btn { padding: 10px 20px; font-size: 16px; }
     #recorderBar { display: none; margin-top: 20px; }
     #successMessage {
       display: none;
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: #4CAF50;
-      color: #fff;
-      padding: 15px 25px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      z-index: 3000;
-      font-size: 16px;
+      background: #4CAF50;
+      color: white;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 5px;
     }
   </style>
 </head>
@@ -32,54 +27,40 @@
   <section id="studentFormSection" class="fade show">
     <h2>Student Information</h2>
     <form id="studentForm">
-      <div class="form-group">
-        <label for="studentName">Name:</label>
-        <input type="text" id="studentName" required>
-      </div>
-      <div class="form-group">
-        <label for="studentEmail">Email:</label>
-        <input type="email" id="studentEmail" required>
-      </div>
-      <div class="form-group">
-        <label for="currentDate">Date:</label>
-        <input type="text" id="currentDate" readonly>
-      </div>
-      <div class="form-group">
-        <label for="currentTime">Time:</label>
-        <input type="text" id="currentTime" readonly>
-      </div>
-      <button type="button" id="startButton" class="action-btn">Start Your Developing</button>
+      <label for="studentName">Name:</label>
+      <input type="text" id="studentName" required>
+
+      <label for="studentEmail">Email:</label>
+      <input type="email" id="studentEmail" required>
+
+      <label for="currentDate">Date:</label>
+      <input type="text" id="currentDate" readonly>
+
+      <label for="currentTime">Time:</label>
+      <input type="text" id="currentTime" readonly>
+
+      <button type="button" id="startButton">Start Your Developing</button>
     </form>
   </section>
 
   <section id="ayahSection" class="fade" style="display:none;">
-    <header>
-      <h1>LEARN WITH SHAZLY</h1>
-      <p>Floating Recorder & Inline Ayah Controls</p>
-      <div class="mode-buttons">
-        <button onclick="setMode('dark')">🌙 Dark Mode</button>
-        <button onclick="setMode('light')">☀️ Light Mode</button>
-      </div>
-    </header>
-
     <h2>Select Surah and Ayah Range</h2>
     <select id="surahSelect">
       <option value="">Select Surah</option>
-    </select><br/>
-
+    </select>
     <label for="fromAyah">From Ayah:</label>
-    <input type="number" id="fromAyah" min="1" placeholder="Ayah number from">
+    <input type="number" id="fromAyah" min="1">
 
     <label for="toAyah">To Ayah:</label>
-    <input type="number" id="toAyah" min="1" placeholder="Ayah number to">
+    <input type="number" id="toAyah" min="1">
 
-    <button id="loadAyahs" class="action-btn">🎧 Load Ayahs</button>
+    <button id="loadAyahs">🎧 Load Ayahs</button>
     <div id="ayahs"></div>
 
     <audio id="mainPlayer" controls></audio>
-    <audio id="recordedAudio" controls style="display:none;"></audio>
+    <audio id="recordedAudio" controls style="display:none; margin-top:15px;"></audio>
 
-    <div class="recorder" id="recorderBar">
+    <div id="recorderBar">
       <button id="startRec">🔴 Start</button>
       <button id="pauseRec" disabled>⏸️ Pause</button>
       <button id="stopRec" disabled>⏹️ Stop</button>
@@ -87,17 +68,25 @@
 
     <div id="thanksMessage" style="display:none; text-align:center; margin-top:30px;">
       <h2>JAZAKUM ALLAH KHAIRAN</h2>
-      <button id="submitBtn" class="action-btn">SUBMIT</button>
+      <button id="submitBtn">SUBMIT</button>
     </div>
   </section>
 
-  <div id="successMessage">
-    ✅ تم الإرسال بنجاح! تحقق من بريدك الإلكتروني.
-    <button onclick="this.parentElement.style.display='none'" style="margin-left:10px;">✖</button>
-  </div>
+  <div id="successMessage"></div>
 
   <script>
-    emailjs.init("74-zUyeR-o7zE76GL");
+    emailjs.init("UPiVfipXxhGdU_CQA06Sh");
+
+    const surahNames = ["","Al-Fatiha","Al-Baqara","Aali Imran","An-Nisa","Al-Ma'ida","Al-An'am","Al-A'raf","Al-Anfal","At-Tawba","Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha","Al-Anbiya","Al-Hajj","Al-Mu'minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-Ankabut","Ar-Rum","Luqman","As-Sajda","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar","Ghafir","Fussilat","Ash-Shura","Az-Zukhruf","Ad-Dukhan","Al-Jathiya","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf","Adh-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqia","Al-Hadid","Al-Mujadila","Al-Hashr","Al-Mumtahina","As-Saff","Al-Jumua","Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqa","Al-Ma'arij","Nuh","Al-Jinn","Al-Muzzammil","Al-Muddathir","Al-Qiyama","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","Abasa","At-Takwir","Al-Infitar","Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiya","Al-Fajr","Al-Balad","Ash-Shams","Al-Lail","Ad-Duha","Ash-Sharh","At-Tin","Al-'Alaq","Al-Qadr","Al-Bayyina","Az-Zalzala","Al-Adiyat","Al-Qari'a","At-Takathur","Al-Asr","Al-Humaza","Al-Fil","Quraish","Al-Ma'un","Al-Kawthar","Al-Kafirun","An-Nasr","Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"];
+
+    const surahSelect = document.getElementById("surahSelect");
+    surahNames.forEach((name, index) => {
+      if (index === 0) return;
+      const opt = document.createElement("option");
+      opt.value = index;
+      opt.textContent = `${index}. ${name}`;
+      surahSelect.appendChild(opt);
+    });
 
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("currentDate").value = new Date().toLocaleDateString();
@@ -120,7 +109,7 @@
           ayahSection.style.display = "block";
           requestAnimationFrame(() => {
             ayahSection.classList.add("show");
-            recorderBar.style.display = "flex";
+            recorderBar.style.display = "block";
           });
         }, 500);
       });
@@ -132,12 +121,20 @@
         mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
         mediaRecorder.start();
         document.getElementById("startRec").disabled = true;
+        document.getElementById("pauseRec").disabled = false;
         document.getElementById("stopRec").disabled = false;
+      };
+
+      document.getElementById("pauseRec").onclick = () => {
+        if (mediaRecorder.state === "recording") mediaRecorder.pause();
+        else if (mediaRecorder.state === "paused") mediaRecorder.resume();
       };
 
       document.getElementById("stopRec").onclick = () => {
         mediaRecorder.stop();
         document.getElementById("stopRec").disabled = true;
+        document.getElementById("pauseRec").disabled = true;
+        document.getElementById("startRec").disabled = false;
         mediaRecorder.onstop = () => {
           const blob = new Blob(recordedChunks, { type: "audio/webm" });
           const url = URL.createObjectURL(blob);
@@ -161,54 +158,56 @@
         }
 
         try {
-          const base64 = await blobToBase64(blob);
-          const link = await uploadToFileIO(base64);
+          const key = crypto.getRandomValues(new Uint8Array(32));
+          const iv = crypto.getRandomValues(new Uint8Array(12));
+          const alg = { name: "AES-GCM", iv };
+          const cryptoKey = await crypto.subtle.importKey("raw", key, alg, false, ["encrypt"]);
+          const encrypted = await crypto.subtle.encrypt(alg, cryptoKey, await blob.arrayBuffer());
 
-          if (!link) {
-            alert("❌ فشل رفع الملف!");
+          const combined = new Uint8Array(iv.length + encrypted.byteLength);
+          combined.set(iv);
+          combined.set(new Uint8Array(encrypted), iv.length);
+          const base64Encoded = btoa(String.fromCharCode(...combined));
+
+          const fileName = `recording-${Date.now()}.txt`;
+          const githubApiUrl = `https://api.github.com/repos/mamdohshazly/call/contents/recordings/${fileName}`;
+          const githubToken = "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";
+
+          const githubUpload = await fetch(githubApiUrl, {
+            method: "PUT",
+            headers: {
+              "Authorization": `Bearer ${githubToken}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              message: `Upload from ${studentName}`,
+              content: btoa(base64Encoded)
+            })
+          });
+
+          if (!githubUpload.ok) {
+            alert("❌ فشل في رفع الملف إلى GitHub");
             return;
           }
 
-          await emailjs.send("service_vlapjef", "template_p0wtlnj", {
-            from_name: studentName,
-            from_email: studentEmail,
-            date: date,
-            time: time,
-            recording_link: link
+          await emailjs.send("service_vlapjef", "template_jhbppzj", {
+            student_name: studentName,
+            student_email: studentEmail,
+            date,
+            time,
+            message: `📥 تم استلام تسجيل جديد من الطالب: ${studentName}`
           });
 
+          successMessage.textContent = "✅ تم التشفير، والرفع، والإرسال بنجاح!";
           successMessage.style.display = "block";
           setTimeout(() => {
             successMessage.style.display = "none";
           }, 4000);
 
         } catch (err) {
-          alert("❌ حدث خطأ أثناء الإرسال: " + err.message);
+          alert("❌ خطأ أثناء المعالجة: " + err.message);
         }
       };
-
-      function blobToBase64(blob) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result.split(',')[1]);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-      }
-
-      async function uploadToFileIO(base64Text) {
-        const formData = new FormData();
-        const blob = new Blob([base64Text], { type: 'text/plain' });
-        formData.append("file", blob, "recording.txt");
-
-        const res = await fetch("https://file.io/?expires=1d", {
-          method: "POST",
-          body: formData
-        });
-
-        const data = await res.json();
-        return data.success ? data.link : null;
-      }
     });
   </script>
 </body>
