@@ -3,23 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <title>LEARN WITH SHAZLY - Student Recorder</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&family=Scheherazade+New&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
   <style>
     body { font-family: 'Cairo', sans-serif; padding: 20px; }
-    label { font-weight: bold; display: block; margin-top: 10px; }
-    input, button, select { padding: 8px; margin-top: 5px; width: 100%; max-width: 400px; }
-    button { cursor: pointer; }
     .fade { opacity: 0; transition: opacity 0.5s ease-in-out; }
     .fade.show { opacity: 1; }
+    .form-group { margin-bottom: 15px; }
+    .action-btn { padding: 10px 20px; font-size: 16px; }
     #recorderBar { display: none; margin-top: 20px; }
     #successMessage {
       display: none;
-      background: #4CAF50;
-      color: white;
-      padding: 10px;
-      margin-top: 20px;
-      border-radius: 5px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 3000;
+      font-size: 16px;
     }
   </style>
 </head>
@@ -27,40 +32,54 @@
   <section id="studentFormSection" class="fade show">
     <h2>Student Information</h2>
     <form id="studentForm">
-      <label for="studentName">Name:</label>
-      <input type="text" id="studentName" required>
-
-      <label for="studentEmail">Email:</label>
-      <input type="email" id="studentEmail" required>
-
-      <label for="currentDate">Date:</label>
-      <input type="text" id="currentDate" readonly>
-
-      <label for="currentTime">Time:</label>
-      <input type="text" id="currentTime" readonly>
-
-      <button type="button" id="startButton">Start Your Developing</button>
+      <div class="form-group">
+        <label for="studentName">Name:</label>
+        <input type="text" id="studentName" required>
+      </div>
+      <div class="form-group">
+        <label for="studentEmail">Email:</label>
+        <input type="email" id="studentEmail" required>
+      </div>
+      <div class="form-group">
+        <label for="currentDate">Date:</label>
+        <input type="text" id="currentDate" readonly>
+      </div>
+      <div class="form-group">
+        <label for="currentTime">Time:</label>
+        <input type="text" id="currentTime" readonly>
+      </div>
+      <button type="button" id="startButton" class="action-btn">Start Your Developing</button>
     </form>
   </section>
 
   <section id="ayahSection" class="fade" style="display:none;">
+    <header>
+      <h1>LEARN WITH SHAZLY</h1>
+      <p>Floating Recorder & Inline Ayah Controls</p>
+      <div class="mode-buttons">
+        <button onclick="setMode('dark')">🌙 Dark Mode</button>
+        <button onclick="setMode('light')">☀️ Light Mode</button>
+      </div>
+    </header>
+
     <h2>Select Surah and Ayah Range</h2>
     <select id="surahSelect">
       <option value="">Select Surah</option>
-    </select>
+    </select><br/>
+
     <label for="fromAyah">From Ayah:</label>
-    <input type="number" id="fromAyah" min="1">
+    <input type="number" id="fromAyah" min="1" placeholder="Ayah number from">
 
     <label for="toAyah">To Ayah:</label>
-    <input type="number" id="toAyah" min="1">
+    <input type="number" id="toAyah" min="1" placeholder="Ayah number to">
 
-    <button id="loadAyahs">🎧 Load Ayahs</button>
+    <button id="loadAyahs" class="action-btn">🎧 Load Ayahs</button>
     <div id="ayahs"></div>
 
     <audio id="mainPlayer" controls></audio>
-    <audio id="recordedAudio" controls style="display:none; margin-top:15px;"></audio>
+    <audio id="recordedAudio" controls style="display:none;"></audio>
 
-    <div id="recorderBar">
+    <div class="recorder" id="recorderBar">
       <button id="startRec">🔴 Start</button>
       <button id="pauseRec" disabled>⏸️ Pause</button>
       <button id="stopRec" disabled>⏹️ Stop</button>
@@ -68,21 +87,24 @@
 
     <div id="thanksMessage" style="display:none; text-align:center; margin-top:30px;">
       <h2>JAZAKUM ALLAH KHAIRAN</h2>
-      <button id="submitBtn">SUBMIT</button>
+      <button id="submitBtn" class="action-btn">SUBMIT</button>
     </div>
   </section>
 
-  <div id="successMessage"></div>
+  <div id="successMessage">
+    ✅ تم الإرسال بنجاح! تحقق من بريدك الإلكتروني.
+    <button onclick="this.parentElement.style.display='none'" style="margin-left:10px;">✖</button>
+  </div>
 
   <script>
     emailjs.init("UPiVfipXxhGdU_CQA06Sh");
 
-    const surahNames = ["","Al-Fatiha","Al-Baqara","Aali Imran","An-Nisa","Al-Ma'ida","Al-An'am","Al-A'raf","Al-Anfal","At-Tawba","Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha","Al-Anbiya","Al-Hajj","Al-Mu'minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-Ankabut","Ar-Rum","Luqman","As-Sajda","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar","Ghafir","Fussilat","Ash-Shura","Az-Zukhruf","Ad-Dukhan","Al-Jathiya","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf","Adh-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqia","Al-Hadid","Al-Mujadila","Al-Hashr","Al-Mumtahina","As-Saff","Al-Jumua","Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqa","Al-Ma'arij","Nuh","Al-Jinn","Al-Muzzammil","Al-Muddathir","Al-Qiyama","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","Abasa","At-Takwir","Al-Infitar","Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiya","Al-Fajr","Al-Balad","Ash-Shams","Al-Lail","Ad-Duha","Ash-Sharh","At-Tin","Al-'Alaq","Al-Qadr","Al-Bayyina","Az-Zalzala","Al-Adiyat","Al-Qari'a","At-Takathur","Al-Asr","Al-Humaza","Al-Fil","Quraish","Al-Ma'un","Al-Kawthar","Al-Kafirun","An-Nasr","Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"];
+    const surahNames = ["", "Al-Fatiha", "Al-Baqara", "Aali Imran", "An-Nisa", "Al-Ma'ida", "Al-An'am", "Al-A'raf", "Al-Anfal", "At-Tawba", "Yunus", "Hud", "Yusuf", "Ar-Ra'd", "Ibrahim", "Al-Hijr", "An-Nahl", "Al-Isra", "Al-Kahf", "Maryam", "Ta-Ha", "Al-Anbiya", "Al-Hajj", "Al-Mu'minun", "An-Nur", "Al-Furqan", "Ash-Shu'ara", "An-Naml", "Al-Qasas", "Al-Ankabut", "Ar-Rum", "Luqman", "As-Sajda", "Al-Ahzab", "Saba", "Fatir", "Ya-Sin", "As-Saffat", "Sad", "Az-Zumar", "Ghafir", "Fussilat", "Ash-Shura", "Az-Zukhruf", "Ad-Dukhan", "Al-Jathiya", "Al-Ahqaf", "Muhammad", "Al-Fath", "Al-Hujurat", "Qaf", "Adh-Dhariyat", "At-Tur", "An-Najm", "Al-Qamar", "Ar-Rahman", "Al-Waqia", "Al-Hadid", "Al-Mujadila", "Al-Hashr", "Al-Mumtahina", "As-Saff", "Al-Jumua", "Al-Munafiqun", "At-Taghabun", "At-Talaq", "At-Tahrim", "Al-Mulk", "Al-Qalam", "Al-Haqqa", "Al-Ma'arij", "Nuh", "Al-Jinn", "Al-Muzzammil", "Al-Muddathir", "Al-Qiyama", "Al-Insan", "Al-Mursalat", "An-Naba", "An-Nazi'at", "Abasa", "At-Takwir", "Al-Infitar", "Al-Mutaffifin", "Al-Inshiqaq", "Al-Buruj", "At-Tariq", "Al-A'la", "Al-Ghashiya", "Al-Fajr", "Al-Balad", "Ash-Shams", "Al-Lail", "Ad-Duha", "Ash-Sharh", "At-Tin", "Al-'Alaq", "Al-Qadr", "Al-Bayyina", "Az-Zalzala", "Al-Adiyat", "Al-Qari'a", "At-Takathur", "Al-Asr", "Al-Humaza", "Al-Fil", "Quraish", "Al-Ma'un", "Al-Kawthar", "Al-Kafirun", "An-Nasr", "Al-Masad", "Al-Ikhlas", "Al-Falaq", "An-Nas"];
 
-    const surahSelect = document.getElementById("surahSelect");
+    const surahSelect = document.getElementById('surahSelect');
     surahNames.forEach((name, index) => {
       if (index === 0) return;
-      const opt = document.createElement("option");
+      const opt = document.createElement('option');
       opt.value = index;
       opt.textContent = `${index}. ${name}`;
       surahSelect.appendChild(opt);
@@ -109,7 +131,7 @@
           ayahSection.style.display = "block";
           requestAnimationFrame(() => {
             ayahSection.classList.add("show");
-            recorderBar.style.display = "block";
+            recorderBar.style.display = "flex";
           });
         }, 500);
       });
@@ -171,7 +193,7 @@
 
           const fileName = `recording-${Date.now()}.txt`;
           const githubApiUrl = `https://api.github.com/repos/mamdohshazly/call/contents/recordings/${fileName}`;
-          const githubToken = "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";
+          const githubToken = "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";
 
           const githubUpload = await fetch(githubApiUrl, {
             method: "PUT",
